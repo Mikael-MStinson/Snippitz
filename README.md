@@ -2,7 +2,7 @@
 A personal file manager specializing in semantically organizing and accessing small files and chunks of data
 
 
-##Design Notes
+## Design Notes
 Start simple. Build a system that can take a new file and automatically tie it to the tag "unsorted".
 Tags in this sense are going to be files themselves.
 Then give it the ability to tie files to other files.
