@@ -1,7 +1,7 @@
 # Snippitz
 A personal file manager specializing in synaptically organizing and files and folder.
 
-# Abstraction
+## Abstraction
 Provide snippitz with the path of a file or folder and it will return all files and folders connected to it.
 The connections between files and folders are entirely customizable and the meaning of these connections is given by the user.
 
