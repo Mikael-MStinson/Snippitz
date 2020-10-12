@@ -7,6 +7,9 @@ class Snippitz:
 		self.cursor.execute("CREATE TABLE connections ( file text, relative text)")
 		self.database.commit()
 		
+	def open(self):
+		pass
+		
 	def close(self):
 		self.database.close()
 
@@ -31,3 +34,16 @@ class Snippitz:
 		self.cursor.execute("DELETE FROM connections WHERE file='{}' AND relative='{}'".format(fileA, fileB))
 		self.cursor.execute("DELETE FROM connections WHERE file='{}' AND relative='{}'".format(fileB, fileA))
 		self.database.commit()
+		
+	def merge(self, fileA, fileB):
+		fileA_connections = self.list(fileA)
+		fileB_connections = self.list(fileB)
+		for connection in fileA_connections:
+			self.tie(fileB, connection)
+		for connection in fileB_connections:
+			self.tie(fileA, connection)
+			
+	def delete(self, file):
+		connections = self.list(file)
+		for connection in connections:
+			self.severe(file, connection)
