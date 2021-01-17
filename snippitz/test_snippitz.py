@@ -2,6 +2,13 @@ from unittest import TestCase
 from .snippitz import Snippitz
 
 class TestSnippitz(TestCase):
+	def test_register_file_and_list(self):
+		snippitz = Snippitz(database = ':memory:')
+		self.assertEqual(snippitz.list(0), [])
+		snippitz.register("file1")
+		self.assertEqual(snippitz.list(0), ["file1"])
+		snippitz.close()
+	'''
 	def test_tie_and_list(self):
 		snippitz = Snippitz(database = ':memory:')
 		snippitz.tie("file1","file2")
@@ -147,6 +154,6 @@ class TestSnippitz(TestCase):
 		self.assertEqual(snippitz.list("file1"), ["file3"])
 		self.assertRaises(FileNotFoundError, snippitz.list, "file2")
 		self.assertEqual(snippitz.list("file3"), ["file1"])
-		snippitz.close()
+		snippitz.close()'''
 		
 		
