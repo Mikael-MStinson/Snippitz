@@ -104,9 +104,7 @@ class TestSnippitz(TestCase):
 	
 	def test_severe_nonexistant_connection(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.print()
 		snippitz.severe_data(2,3)
-		snippitz.print()
 		self.assertRaises(FileNotFoundError, snippitz.list, 2)
 		self.assertRaises(FileNotFoundError, snippitz.list, 3)
 		snippitz.close()
@@ -131,20 +129,26 @@ class TestSnippitz(TestCase):
 		self.assertEqual(snippitz.list(4), [3,5])
 		self.assertEqual(snippitz.list(5), [4])
 		snippitz.close()
-	'''	
+	
 	def test_merge_files_with_unique_connections(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		snippitz.tie("file1","file3")
-		snippitz.tie("file4","file5")
-		snippitz.tie("file4","file6")
-		self.assertEqual(snippitz.list("file1"), ["file2","file3"])
-		self.assertEqual(snippitz.list("file4"), ["file5","file6"])
-		snippitz.merge("file1","file4")
-		self.assertEqual(snippitz.list("file1"), ["file2","file3","file5","file6"])
-		self.assertEqual(snippitz.list("file4"), ["file5","file6","file2","file3"])
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
+		snippitz.register("path/file3")
+		snippitz.register("path/file4")
+		snippitz.register("path/file5")
+		snippitz.register("path/file6")
+		snippitz.tie_data(2,3)
+		snippitz.tie_data(2,4)
+		snippitz.tie_data(5,6)
+		snippitz.tie_data(5,7)
+		self.assertEqual(snippitz.list(2), [3,4])
+		self.assertEqual(snippitz.list(5), [6,7])
+		snippitz.merge(2,5)
+		self.assertEqual(snippitz.list(2), [3,4,6,7])
+		self.assertEqual(snippitz.list(5), [6,7,3,4])
 		snippitz.close()
-		
+	'''	
 	def test_merge_files_with_shared_connections(self):
 		snippitz = Snippitz(database = ':memory:')
 		snippitz.tie("file1","file2")

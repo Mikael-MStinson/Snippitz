@@ -82,9 +82,9 @@ class Snippitz:
 		fileA_connections = self.list(fileA)
 		fileB_connections = self.list(fileB)
 		for connection in fileA_connections:
-			self.tie(fileB, connection)
+			self.tie_data(fileB, connection)
 		for connection in fileB_connections:
-			self.tie(fileA, connection)
+			self.tie_data(fileA, connection)
 			
 	def delete(self, rowid):
 		self.cursor.execute("delete from data where rowid='{}'".format(rowid))
@@ -98,9 +98,6 @@ class Snippitz:
 		return rowid
 		
 	def replace(self):
-		pass
-	
-	def merge(self):
 		pass
 		
 	def query(self, synapse_structure):
