@@ -23,19 +23,22 @@ class TestSnippitz(TestCase):
 		self.assertEqual(new_data_id, 4)
 		snippitz.close()
 	
-	def test_register_file_and_list(self):
+	def test_register_data_and_list(self):
 		snippitz = Snippitz(database = ':memory:')
 		self.assertRaises(FileNotFoundError, snippitz.list, 1)
-		snippitz.register("file1")
+		snippitz.register("data")
 		self.assertEqual(snippitz.list(1), [2])
 		snippitz.close()
-	'''
+	
 	def test_tie_and_list(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		self.assertEqual(snippitz.list("file1"), ["file2"])
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
+		snippitz.tie_data(2,3)
+		self.assertEqual(snippitz.list(2), [1,3])
+		self.assertEqual(snippitz.list(3), [1,2])
 		snippitz.close()
-	
+	'''
 	def test_tie_to_itself(self):
 		snippitz = Snippitz(database = ':memory:')
 		snippitz.tie("file1","file1")
