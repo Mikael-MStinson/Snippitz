@@ -63,17 +63,19 @@ class TestSnippitz(TestCase):
 		self.assertEqual(snippitz.list(4), [1,2])
 		self.assertEqual(snippitz.list(5), [1,2])
 		snippitz.close()
-	
-	'''	
 		
 	def test_severe_and_list(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		snippitz.severe("file1","file2")
-		self.assertRaises(FileNotFoundError, snippitz.list, "file1")
-		self.assertRaises(FileNotFoundError, snippitz.list, "file2")
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
+		snippitz.tie_data(2,3)
+		self.assertEqual(snippitz.list(2), [1,3])
+		self.assertEqual(snippitz.list(3), [1,2])
+		snippitz.severe_data(2,3)
+		self.assertEqual(snippitz.list(2), [1])
+		self.assertEqual(snippitz.list(3), [1])
 		snippitz.close()
-		
+	'''	
 	def test_duplicate_tie(self):
 		snippitz = Snippitz(database = ':memory:')
 		snippitz.tie("file1","file2")

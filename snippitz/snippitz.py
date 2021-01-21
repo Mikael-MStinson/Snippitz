@@ -35,10 +35,12 @@ class Snippitz:
 	def tie_to_connection(self, file_id, related_id):
 		pass
 	
-	def severe(self, fileA, fileB):
-		self.cursor.execute("DELETE FROM connections WHERE file='{}' AND relative='{}'".format(fileA, fileB))
-		self.cursor.execute("DELETE FROM connections WHERE file='{}' AND relative='{}'".format(fileB, fileA))
+	def severe_data(self, fileA, fileB):
+		self.cursor.execute("delete from connections where file_id='{}' AND related_data_id='{}'".format(fileA, fileB))
+		self.cursor.execute("delete from connections where file_id='{}' AND related_data_id='{}'".format(fileB, fileA))
 		self.database.commit()
+		self.cursor.execute("select rowid, * from connections")
+		print(self.cursor.fetchall())
 		
 	def merge(self, fileA, fileB):
 		fileA_connections = self.list(fileA)
