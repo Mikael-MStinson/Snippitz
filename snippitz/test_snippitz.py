@@ -38,42 +38,33 @@ class TestSnippitz(TestCase):
 		self.assertEqual(snippitz.list(2), [1,3])
 		self.assertEqual(snippitz.list(3), [1,2])
 		snippitz.close()
-	'''
+	
 	def test_tie_to_itself(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file1")
-		snippitz.tie("file1","file2")
-		self.assertEqual(snippitz.list("file1"), ["file2"])
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
+		snippitz.tie_data(2,2)
+		snippitz.tie_data(2,3)
+		self.assertEqual(snippitz.list(2), [1,3])
+		self.assertEqual(snippitz.list(3), [1,2])
 		snippitz.close()
 		
 	def test_tie_to_multiple_files_and_list(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		snippitz.tie("file1","file3")
-		snippitz.tie("file1","file4")
-		self.assertEqual(snippitz.list("file1"), ["file2","file3","file4"])
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
+		snippitz.register("path/file3")
+		snippitz.register("path/file4")
+		snippitz.tie_data(2,3)
+		snippitz.tie_data(2,4)
+		snippitz.tie_data(2,5)
+		self.assertEqual(snippitz.list(2), [1,3,4,5])
+		self.assertEqual(snippitz.list(3), [1,2])
+		self.assertEqual(snippitz.list(4), [1,2])
+		self.assertEqual(snippitz.list(5), [1,2])
 		snippitz.close()
-		
-	def test_tie_and_list_from_relative_perspective(self):
-		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		self.assertEqual(snippitz.list("file2"), ["file1"])
-		snippitz.close()
-		
-	def test_tie_to_multiple_files_and_list_from_relative_perspective(self):
-		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		snippitz.tie("file1","file3")
-		snippitz.tie("file1","file4")
-		self.assertEqual(snippitz.list("file2"), ["file1"])
-		self.assertEqual(snippitz.list("file3"), ["file1"])
-		self.assertEqual(snippitz.list("file4"), ["file1"])
-		snippitz.close()
-		
-	def test_list_for_nonexistant_file(self):
-		snippitz = Snippitz(database = ':memory:')
-		self.assertRaises(FileNotFoundError, snippitz.list, "file")
-		snippitz.close()
+	
+	'''	
 		
 	def test_severe_and_list(self):
 		snippitz = Snippitz(database = ':memory:')

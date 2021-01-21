@@ -16,7 +16,7 @@ class Snippitz:
 		self.database.close()
 
 	def tie_data(self, file_id, related_id):
-		#if file_id == related_id and not related_is_connection: return
+		if file_id == related_id: return
 		'''try:
 			if related_id in self.list(file_id): return
 		except FileNotFoundError:
