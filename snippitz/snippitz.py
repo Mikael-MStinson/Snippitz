@@ -9,6 +9,12 @@ class Snippitz:
 		self.cursor.execute("CREATE TABLE connections (file_id integer, related_data_id integer, related_connection_id integer, FOREIGN KEY (related_data_id) REFERENCES data(rowid))")
 		self.database.commit()
 		
+	def print(self):
+		self.cursor.execute("select rowid, * from data")
+		print(self.cursor.fetchall())
+		self.cursor.execute("select rowid, * from connections")
+		print(self.cursor.fetchall())
+	
 	def open(self):
 		pass
 		
@@ -17,13 +23,25 @@ class Snippitz:
 
 	def tie_data(self, file_id, related_id):
 		if file_id == related_id: return
-		'''try:
+		try:
 			if related_id in self.list(file_id): return
 		except FileNotFoundError:
-			pass'''
+			pass
+		self._remove_unsorted(file_id)
+		self._remove_unsorted(related_id)
+		self._tie_data(file_id, related_id)
+		
+	def _tie_data(self, file_id, related_id):
 		self.cursor.execute("insert into connections values ('{}', '{}', NULL)".format(file_id, related_id))
 		self.cursor.execute("insert into connections values ('{}', '{}', NULL)".format(related_id, file_id))
 		self.database.commit()
+	
+	def _remove_unsorted(self,rowid):
+		try:
+			if 1 in self.list(rowid):
+				self.severe_data(rowid, 1)
+		except FileNotFoundError:
+			pass
 		
 	def list(self, rowid):
 		self.cursor.execute("select related_data_id from connections where file_id='{}'".format(rowid))
@@ -36,11 +54,29 @@ class Snippitz:
 		pass
 	
 	def severe_data(self, fileA, fileB):
+		if not self._connection_exists(fileA, fileB): return
+		self._sever_data(fileA, fileB)
+		self._reapply_unsorted(fileA)
+		self._reapply_unsorted(fileB)
+	
+	def _connection_exists(self, fileA, fileB):
+		self.cursor.execute("select * from connections where file_id='{}' AND related_data_id='{}'".format(fileA, fileB))
+		if len(self.cursor.fetchall()) > 0: return True
+		self.cursor.execute("select * from connections where file_id='{}' AND related_data_id='{}'".format(fileB, fileA))
+		if len(self.cursor.fetchall()) > 0: return True
+		return False
+	
+	def _sever_data(self, fileA, fileB):
 		self.cursor.execute("delete from connections where file_id='{}' AND related_data_id='{}'".format(fileA, fileB))
 		self.cursor.execute("delete from connections where file_id='{}' AND related_data_id='{}'".format(fileB, fileA))
 		self.database.commit()
-		self.cursor.execute("select rowid, * from connections")
-		print(self.cursor.fetchall())
+	
+	def _reapply_unsorted(self, rowid):
+		try:
+			self.list(rowid)
+		except FileNotFoundError:
+			self._tie_data(rowid, 1)
+		
 		
 	def merge(self, fileA, fileB):
 		fileA_connections = self.list(fileA)
@@ -58,7 +94,7 @@ class Snippitz:
 		self.database.commit()
 		self.cursor.execute("select rowid, * from data order by rowid desc limit 1")
 		rowid = self.cursor.fetchall()[0][0]
-		self.tie_data(1, rowid)
+		self._tie_data(1, rowid)
 		return rowid
 		
 	def replace(self):
