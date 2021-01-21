@@ -15,22 +15,22 @@ class Snippitz:
 	def close(self):
 		self.database.close()
 
-	def tie_to_file(self, file_id, related_id):
-		if file_id == related_id and not related_is_connection: return
-		try:
+	def tie_data(self, file_id, related_id):
+		#if file_id == related_id and not related_is_connection: return
+		'''try:
 			if related_id in self.list(file_id): return
 		except FileNotFoundError:
-			pass
-		self.cursor.execute("INSERT INTO connections VALUES ('{}', '{}', NULL)".format(file_id, related_id))
-		self.cursor.execute("INSERT INTO connections VALUES ('{}', '{}', NULL)".format(related_id, file_id))
+			pass'''
+		self.cursor.execute("insert into connections values ('{}', '{}', NULL)".format(file_id, related_id))
+		self.cursor.execute("insert into connections values ('{}', '{}', NULL)".format(related_id, file_id))
 		self.database.commit()
 		
-	def list(self, fileid):
-		self.cursor.execute("SELECT * FROM connections WHERE rowid='{}'".format(fileid))
-		l = self.cursor.fetchall()
-		if l == []:
-			raise FileNotFoundError("File ID {} is not registered with Snippitz".format(fileid))
-		return [i[1] for i in l]
+	def list(self, rowid):
+		self.cursor.execute("select related_data_id from connections where file_id='{}'".format(rowid))
+		related_ids = self.cursor.fetchall()
+		if related_ids == []:
+			raise FileNotFoundError("File ID {} is not related to anything".format(rowid))
+		return [related_id[0] for related_id in related_ids]
 		
 	def tie_to_connection(self, file_id, related_id):
 		pass
@@ -48,15 +48,16 @@ class Snippitz:
 		for connection in fileB_connections:
 			self.tie(fileA, connection)
 			
-	def delete(self, file):
-		connections = self.list(file)
-		for connection in connections:
-			self.severe(file, connection)
+	def delete(self, rowid):
+		self.cursor.execute("delete from data where rowid='{}'".format(rowid))
 			
 	def register(self, file, *ties):
-		self.cursor.execute("INSERT INTO data VALUES ('{}')".format(file))
-		self.tie_to_file(file,"unsorted")
+		self.cursor.execute("insert into data values ('{}')".format(file))
 		self.database.commit()
+		self.cursor.execute("select rowid, * from data order by rowid desc limit 1")
+		rowid = self.cursor.fetchall()[0][0]
+		self.tie_data(1, rowid)
+		return rowid
 		
 	def replace(self):
 		pass

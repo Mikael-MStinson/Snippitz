@@ -2,11 +2,32 @@ from unittest import TestCase
 from .snippitz import Snippitz
 
 class TestSnippitz(TestCase):
+	def test_register_data(self):	
+		snippitz = Snippitz(database = ':memory:')
+		new_data_id = snippitz.register("data")
+		self.assertEqual(new_data_id, 2)
+		new_data_id = snippitz.register("data")
+		self.assertEqual(new_data_id, 3)
+		new_data_id = snippitz.register("data")
+		self.assertEqual(new_data_id, 4)
+		snippitz.close()
+		
+	def test_register_and_delete_data(self):
+		snippitz = Snippitz(database = ':memory:')
+		new_data_id = snippitz.register("data")
+		self.assertEqual(new_data_id, 2)
+		new_data_id = snippitz.register("data")
+		self.assertEqual(new_data_id, 3)
+		snippitz.delete(2)
+		new_data_id = snippitz.register("data")
+		self.assertEqual(new_data_id, 4)
+		snippitz.close()
+	
 	def test_register_file_and_list(self):
 		snippitz = Snippitz(database = ':memory:')
-		self.assertEqual(snippitz.list(0), [])
+		self.assertRaises(FileNotFoundError, snippitz.list, 1)
 		snippitz.register("file1")
-		self.assertEqual(snippitz.list(0), ["file1"])
+		self.assertEqual(snippitz.list(1), [2])
 		snippitz.close()
 	'''
 	def test_tie_and_list(self):
