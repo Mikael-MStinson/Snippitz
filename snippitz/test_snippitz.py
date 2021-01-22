@@ -148,38 +148,43 @@ class TestSnippitz(TestCase):
 		self.assertEqual(snippitz.list(2), [3,4,6,7])
 		self.assertEqual(snippitz.list(5), [6,7,3,4])
 		snippitz.close()
-	'''	
+	
 	def test_merge_files_with_shared_connections(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		snippitz.tie("file1","file3")
-		snippitz.tie("file4","file3")
-		snippitz.tie("file4","file5")
-		self.assertEqual(snippitz.list("file1"), ["file2","file3"])
-		self.assertEqual(snippitz.list("file4"), ["file3","file5"])
-		snippitz.merge("file1","file4")
-		self.assertEqual(snippitz.list("file1"), ["file2","file3","file5"])
-		self.assertEqual(snippitz.list("file4"), ["file3","file5","file2"])
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
+		snippitz.register("path/file3")
+		snippitz.register("path/file4")
+		snippitz.register("path/file5")
+		snippitz.tie_data(2,3)
+		snippitz.tie_data(2,4)
+		snippitz.tie_data(5,4)
+		snippitz.tie_data(5,6)
+		self.assertEqual(snippitz.list(2), [3,4])
+		self.assertEqual(snippitz.list(5), [4,6])
+		snippitz.merge(2,5)
+		self.assertEqual(snippitz.list(2), [3,4,6])
+		self.assertEqual(snippitz.list(5), [4,6,3])
 		snippitz.close()
-		
+	
 	def test_merge_file_with_itself(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		self.assertEqual(snippitz.list("file1"),["file2"])
-		snippitz.merge("file1","file1")
-		self.assertEqual(snippitz.list("file1"),["file2"])
-		
+		snippitz.tie_data(2,3)
+		self.assertEqual(snippitz.list(2),[3])
+		snippitz.merge(2,2)
+		self.assertEqual(snippitz.list(2),[3])
+	
 	def test_merge_connected_files(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		snippitz.tie("file1","file3")
-		snippitz.tie("file2","file4")
-		self.assertEqual(snippitz.list("file1"),["file2","file3"])
-		self.assertEqual(snippitz.list("file2"),["file1","file4"])
-		snippitz.merge("file1","file2")
-		self.assertEqual(snippitz.list("file1"),["file2","file3","file4"])
-		self.assertEqual(snippitz.list("file2"),["file1","file4","file3"])
-		
+		snippitz.tie_data(2,3)
+		snippitz.tie_data(2,4)
+		snippitz.tie_data(3,5)
+		self.assertEqual(snippitz.list(2),[3,4])
+		self.assertEqual(snippitz.list(3),[2,5])
+		snippitz.merge(2,3)
+		self.assertEqual(snippitz.list(2),[3,4,5])
+		self.assertEqual(snippitz.list(3),[2,5,4])
+	'''	
 	def test_delete_file(self):
 		snippitz = Snippitz(database = ':memory:')
 		snippitz.tie("file1","file2")
