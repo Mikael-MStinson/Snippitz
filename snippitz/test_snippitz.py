@@ -70,14 +70,14 @@ class TestSnippitz(TestCase):
 		self.assertEqual(snippitz.list(5), [2])
 		snippitz.close()
 		
-	def test_severe_and_list(self):
+	def test_sever_and_list(self):
 		snippitz = Snippitz(database = ':memory:')
 		snippitz.register("path/file1")
 		snippitz.register("path/file2")
 		snippitz.tie_data(2,3)
 		self.assertEqual(snippitz.list(2), [3])
 		self.assertEqual(snippitz.list(3), [2])
-		snippitz.severe_data(2,3)
+		snippitz.sever_data(2,3)
 		self.assertEqual(snippitz.list(2), [1])
 		self.assertEqual(snippitz.list(3), [1])
 		snippitz.close()
@@ -102,14 +102,14 @@ class TestSnippitz(TestCase):
 		self.assertEqual(snippitz.list(3), [2])
 		snippitz.close()
 	
-	def test_severe_nonexistant_connection(self):
+	def test_sever_nonexistant_connection(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.severe_data(2,3)
+		snippitz.sever_data(2,3)
 		self.assertRaises(FileNotFoundError, snippitz.list, 2)
 		self.assertRaises(FileNotFoundError, snippitz.list, 3)
 		snippitz.close()
 	
-	def test_create_circular_relationship_and_severe_one_connection(self):
+	def test_create_circular_relationship_and_sever_one_connection(self):
 		snippitz = Snippitz(database = ':memory:')
 		snippitz.register("path/file1")
 		snippitz.register("path/file2")
@@ -123,7 +123,7 @@ class TestSnippitz(TestCase):
 		self.assertEqual(snippitz.list(3), [2,4])
 		self.assertEqual(snippitz.list(4), [3,5])
 		self.assertEqual(snippitz.list(5), [4,2])
-		snippitz.severe_data(5,2)
+		snippitz.sever_data(5,2)
 		self.assertEqual(snippitz.list(2), [3])
 		self.assertEqual(snippitz.list(3), [2,4])
 		self.assertEqual(snippitz.list(4), [3,5])
