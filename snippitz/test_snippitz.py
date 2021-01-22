@@ -24,7 +24,7 @@ class TestSnippitz(TestCase):
 		self.assertEqual(new_data_id, 2)
 		new_data_id = snippitz.register("data")
 		self.assertEqual(new_data_id, 3)
-		snippitz.delete(2)
+		snippitz.unregister(2)
 		new_data_id = snippitz.register("data")
 		self.assertEqual(new_data_id, 4)
 		snippitz.close()
@@ -41,8 +41,8 @@ class TestSnippitz(TestCase):
 		snippitz.register("path/file1")
 		snippitz.register("path/file2")
 		snippitz.tie_data(2,3)
-		self.assertEqual(snippitz.list(2), [1,3])
-		self.assertEqual(snippitz.list(3), [1,2])
+		self.assertEqual(snippitz.list(2), [3])
+		self.assertEqual(snippitz.list(3), [2])
 		snippitz.close()
 	
 	def test_tie_to_itself(self):
@@ -51,8 +51,8 @@ class TestSnippitz(TestCase):
 		snippitz.register("path/file2")
 		snippitz.tie_data(2,2)
 		snippitz.tie_data(2,3)
-		self.assertEqual(snippitz.list(2), [1,3])
-		self.assertEqual(snippitz.list(3), [1,2])
+		self.assertEqual(snippitz.list(2), [3])
+		self.assertEqual(snippitz.list(3), [2])
 		snippitz.close()
 		
 	def test_tie_to_multiple_files_and_list(self):
@@ -65,9 +65,9 @@ class TestSnippitz(TestCase):
 		snippitz.tie_data(2,4)
 		snippitz.tie_data(2,5)
 		self.assertEqual(snippitz.list(2), [3,4,5])
-		self.assertEqual(snippitz.list(3), [1,2])
-		self.assertEqual(snippitz.list(4), [1,2])
-		self.assertEqual(snippitz.list(5), [1,2])
+		self.assertEqual(snippitz.list(3), [2])
+		self.assertEqual(snippitz.list(4), [2])
+		self.assertEqual(snippitz.list(5), [2])
 		snippitz.close()
 		
 	def test_severe_and_list(self):
@@ -75,8 +75,8 @@ class TestSnippitz(TestCase):
 		snippitz.register("path/file1")
 		snippitz.register("path/file2")
 		snippitz.tie_data(2,3)
-		self.assertEqual(snippitz.list(2), [1,3])
-		self.assertEqual(snippitz.list(3), [1,2])
+		self.assertEqual(snippitz.list(2), [3])
+		self.assertEqual(snippitz.list(3), [2])
 		snippitz.severe_data(2,3)
 		self.assertEqual(snippitz.list(2), [1])
 		self.assertEqual(snippitz.list(3), [1])
@@ -88,8 +88,8 @@ class TestSnippitz(TestCase):
 		snippitz.register("path/file2")
 		snippitz.tie_data(2,3)
 		snippitz.tie_data(2,3)
-		self.assertEqual(snippitz.list(2), [1,3])
-		self.assertEqual(snippitz.list(3), [1,2])
+		self.assertEqual(snippitz.list(2), [3])
+		self.assertEqual(snippitz.list(3), [2])
 		snippitz.close()
 	
 	def test_duplicate_tie_reversed(self):
@@ -98,8 +98,8 @@ class TestSnippitz(TestCase):
 		snippitz.register("path/file2")
 		snippitz.tie_data(2,3)
 		snippitz.tie_data(3,2)
-		self.assertEqual(snippitz.list(2), [1,3])
-		self.assertEqual(snippitz.list(3), [1,2])
+		self.assertEqual(snippitz.list(2), [3])
+		self.assertEqual(snippitz.list(3), [2])
 		snippitz.close()
 	
 	def test_severe_nonexistant_connection(self):
@@ -169,13 +169,20 @@ class TestSnippitz(TestCase):
 	
 	def test_merge_file_with_itself(self):
 		snippitz = Snippitz(database = ':memory:')
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
 		snippitz.tie_data(2,3)
 		self.assertEqual(snippitz.list(2),[3])
 		snippitz.merge(2,2)
 		self.assertEqual(snippitz.list(2),[3])
+		snippitz.close()
 	
 	def test_merge_connected_files(self):
 		snippitz = Snippitz(database = ':memory:')
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
+		snippitz.register("path/file3")
+		snippitz.register("path/file4")
 		snippitz.tie_data(2,3)
 		snippitz.tie_data(2,4)
 		snippitz.tie_data(3,5)
@@ -184,18 +191,31 @@ class TestSnippitz(TestCase):
 		snippitz.merge(2,3)
 		self.assertEqual(snippitz.list(2),[3,4,5])
 		self.assertEqual(snippitz.list(3),[2,5,4])
-	'''	
-	def test_delete_file(self):
+		snippitz.close()
+	
+	def test_unregister_file(self):
 		snippitz = Snippitz(database = ':memory:')
-		snippitz.tie("file1","file2")
-		snippitz.tie("file1","file3")
-		self.assertEqual(snippitz.list("file1"), ["file2","file3"])
-		self.assertEqual(snippitz.list("file2"), ["file1"])
-		self.assertEqual(snippitz.list("file3"), ["file1"])
-		snippitz.delete("file2")
-		self.assertEqual(snippitz.list("file1"), ["file3"])
-		self.assertRaises(FileNotFoundError, snippitz.list, "file2")
-		self.assertEqual(snippitz.list("file3"), ["file1"])
-		snippitz.close()'''
+		snippitz.register("path/file1")
+		self.assertEqual(snippitz.list(1), [2])
+		snippitz.unregister(2)
+		self.assertRaises(FileNotFoundError, snippitz.list, 1)
+		snippitz.close()
+		
+	
+	def test_unregister_connected_file(self):
+		snippitz = Snippitz(database = ':memory:')
+		snippitz.register("path/file1")
+		snippitz.register("path/file2")
+		snippitz.register("path/file3")
+		snippitz.tie_data(2,3)
+		snippitz.tie_data(2,4)
+		self.assertEqual(snippitz.list(2), [3,4])
+		self.assertEqual(snippitz.list(3), [2])
+		self.assertEqual(snippitz.list(4), [2])
+		snippitz.unregister(3)
+		self.assertEqual(snippitz.list(2), [4])
+		self.assertRaises(FileNotFoundError, snippitz.list, 3)
+		self.assertEqual(snippitz.list(4), [2])
+		snippitz.close()
 		
 		

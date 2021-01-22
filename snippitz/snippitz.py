@@ -39,7 +39,7 @@ class Snippitz:
 	def _remove_unsorted(self,rowid):
 		try:
 			if 1 in self.list(rowid):
-				self.severe_data(rowid, 1)
+				self._severe_data(rowid, 1)
 		except FileNotFoundError:
 			pass
 		
@@ -55,7 +55,7 @@ class Snippitz:
 	
 	def severe_data(self, fileA, fileB):
 		if not self._connection_exists(fileA, fileB): return
-		self._sever_data(fileA, fileB)
+		self._severe_data(fileA, fileB)
 		self._reapply_unsorted(fileA)
 		self._reapply_unsorted(fileB)
 	
@@ -66,7 +66,7 @@ class Snippitz:
 		if len(self.cursor.fetchall()) > 0: return True
 		return False
 	
-	def _sever_data(self, fileA, fileB):
+	def _severe_data(self, fileA, fileB):
 		self.cursor.execute("delete from connections where file_id='{}' AND related_data_id='{}'".format(fileA, fileB))
 		self.cursor.execute("delete from connections where file_id='{}' AND related_data_id='{}'".format(fileB, fileA))
 		self.database.commit()
@@ -86,8 +86,12 @@ class Snippitz:
 		for connection in fileB_connections:
 			self.tie_data(fileA, connection)
 			
-	def delete(self, rowid):
+	def unregister(self, rowid):
+		related_ids = self.list(rowid)
+		for id in related_ids:
+			self._severe_data(rowid, id)
 		self.cursor.execute("delete from data where rowid='{}'".format(rowid))
+		self.database.commit()
 			
 	def register(self, file, *ties):
 		self.cursor.execute("insert into data values ('{}')".format(file))
